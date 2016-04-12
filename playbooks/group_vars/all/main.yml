@@ -1,0 +1,10 @@
+---
+git_url: https://github.com/Boltmade/ansible-workshop-app.git
+git_branch: master
+
+rvm1_rubies:
+  - "ruby-2.3.0"
+rvm1_install_flags: "--auto-dotfiles"
+
+app_name: ansible-workshop-app
+app_path: "/opt/{{ app_name }}"
