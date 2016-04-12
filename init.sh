@@ -21,6 +21,6 @@ if [ $? -ne 0 ]; then
   echo "done!"
 fi
 
-# echo -n "Installing ansible roles . . . "
-# sudo ansible-galaxy install -r /ansible/playbooks/requirements.txt --ignore-errors &> /dev/null
-# echo "done!"
+echo -n "Installing ansible roles . . . "
+sudo ansible-galaxy install -r /ansible/playbooks/requirements.txt --ignore-errors &> /dev/null
+echo "done!"

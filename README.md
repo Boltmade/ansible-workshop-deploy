@@ -53,7 +53,45 @@ To verify everything is okay:
 ansible-playbook --version # => 2.0.1.4
 ```
 
+Deployment
+----------
+
+We use [Ansible][5] to manage our deployments. The vagrant machine comes with this installed.
+
+### Setup
+
+#### Galaxy Roles
+
+If ansible complains about a missing galaxy role, simply run:
+
+```bash
+ansible-galaxy install -r playbooks/requirements.txt
+```
+
+These are automatically installed during `vagrant provision` and within the vagrant environment on
+machine setup.
+
+### Production
+
+Run inside the Vagrant VM:
+
+```bash
+ansible-playbook playbooks/site.yml -i playbooks/production
+```
+
+If you want to refresh the database, append `--extra-vars "should_seed=true"`
+
+### Dry Run
+
+If you wish to view what would happen without making changes you can perform a trial run and,
+optionally, request a diff to see the changes, simply append:
+
+```bash
+--check [--diff]
+```
+
 [1]: https://www.vagrantup.com/downloads.html
 [2]: https://www.virtualbox.org/wiki/Downloads
 [3]: http://www.parallels.com/products/desktop/
 [4]: https://github.com/Boltmade/ansible-workshop-app
+[5]: http://www.ansible.com/
