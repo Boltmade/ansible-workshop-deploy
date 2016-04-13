@@ -3,6 +3,11 @@
   hosts: all
   remote_user: root
   tasks:
+    - name: set up authorized_keys for the deploy user
+      authorized_key: user=root key="{{ item }}" state=present
+      with_file:
+        - public_keys/id_boltmade_workshop.pub
+
     - name: update apt-get
       apt: update_cache=yes cache_valid_time=300
 
