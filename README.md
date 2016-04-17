@@ -23,10 +23,12 @@ You may also want to checkout the application being deployed:
 
 #### Initial Machine Setup
 
-Thanks to the magic of Vagrant, this is dead simple:
+You need to acquire the vault password from someone on the team, which we'll refer to as
+`VAULT_PASS`. Then:
 
 ```bash
 cd ansible-workshop-deploy
+echo "VAULT_PASS" | tee -a playbooks/vault_pass
 vagrant up --provider=virtualbox # OR: vagrant up --provider=parallels
 ```
 
@@ -53,6 +55,16 @@ To verify everything is okay:
 ansible-playbook --version # => 2.0.1.0
 ```
 
+### Working with Secrets
+
+We are taking advantage of [Ansible Vault][vault]
+to store secrets in our source code. Deploy steps will automatically decrypt our secrets files, but
+if you wish to encrypt a new file or view/edit any existing files:
+
+```
+ansible-vault [encrypt|view|edit] playbooks/path/to/secret_file --vault-password-file playbooks/vault_pass
+```
+
 Deployment
 ----------
 
@@ -76,7 +88,7 @@ machine setup.
 Run inside the Vagrant VM:
 
 ```bash
-ansible-playbook playbooks/site.yml -i playbooks/production
+ansible-playbook playbooks/site.yml -i playbooks/production --vault-password-file playbooks/vault_pass
 ```
 
 If you want to refresh the database, append `--extra-vars "should_seed=true"`
@@ -95,3 +107,4 @@ optionally, request a diff to see the changes, simply append:
 [parallels]: http://www.parallels.com/products/desktop/
 [app]: https://github.com/Boltmade/ansible-workshop-app
 [ansible]: http://www.ansible.com/
+[vault]: https://docs.ansible.com/ansible/playbooks_vault.html

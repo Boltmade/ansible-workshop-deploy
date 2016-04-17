@@ -1,10 +1,10 @@
 ---
 rails_env: production
-secret_key_base: 3c8d5ffea53ce05c3d481e9a12c516f94c9dda2d38210d65f55e90b0813819348c7fd7c1f7a6969f8950ce76e6e1de72196616f58dad7a073ed86c9b5ac572fc
+secret_key_base: "{{ vaulted_secret_key_base }}"
 
 server_name: 159.203.46.230
 
 db_rails_username: rails
-db_rails_password: purple thinking stacks tomato
+db_rails_password: "{{ vaulted_db_rails_password }}"
 db_rails_port: 5432
 db_rails_name: workshop_app
