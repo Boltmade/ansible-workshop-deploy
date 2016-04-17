@@ -3,12 +3,32 @@
   apt: update_cache=yes cache_valid_time=300
 
 - name: install required software
-  apt: name={{ item }} state=latest
+  apt: name="{{ item }}" state=latest
   with_items:
     - curl
+    - sudo
 
-- name: set up authorized_keys for the root user
+- name: setup app user
+  user: name="{{ app_user }}" shell=/bin/bash groups=www-data
+
+- name: add application user to core groups
+  user: name="{{ app_user }}" group=www-data groups="{{ item }}" append=yes shell=/bin/bash
+  with_items:
+    - www-data
+    - staff
+    - sudo
+
+- name: give app user passwordless sudo
+  lineinfile: dest=/etc/sudoers state=present line="{{ app_user }}    ALL=(ALL) NOPASSWD:ALL"
+
+- name: set up authorized_keys for root
   authorized_key: user=root key="{{ item }}" state=present
+  with_file:
+    - public_keys/id_rsa.pub
+  notify: restart ssh
+
+- name: set up authorized_keys for app user
+  authorized_key: user="{{ app_user }}" key="{{ item }}" state=present
   with_file:
     - public_keys/id_rsa.pub
   notify: restart ssh
@@ -21,4 +41,7 @@
   notify: restart ssh
 
 - name: set default PWD
-  lineinfile: dest="/root/.bashrc" line="cd {{ app_path }}"
+  lineinfile: dest="{{ item }}/.bashrc" line="cd {{ app_path }}"
+  with_items:
+    - /root
+    - "/home/{{ app_user }}"

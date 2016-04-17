@@ -1,15 +1,24 @@
 ---
 - name: install app dependencies
   apt: name={{ item }} state=latest
+  become: yes
   with_items:
     - git
     - nodejs
 
 - name: link nodejs
   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+  become: yes
 
 - name: create source directory
-  file: path={{ app_path }} state=directory mode=0755 owner=root group=www-data
+  become: yes
+  file:
+    path: "{{ app_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ app_user }}"
+    group: www-data
+    recurse: yes
 
 - name: clone or update source
   git:
@@ -22,6 +31,7 @@
 
 - name: export rails env variables
   template: src=rails_env.sh.j2 dest=/etc/profile.d/rails_env.sh mode=0644
+  become: yes
 
 - name: export db settings
   template: src=database.yml.j2 dest="{{ app_path }}/config/database.yml" mode=0644

@@ -1,6 +1,7 @@
 ---
 - name: install db dependencies
   apt: name="{{ item }}" state=latest
+  become: yes
   with_items:
     - postgresql
     - libpq-dev
@@ -8,11 +9,11 @@
 
 - name: Start PostgreSQL and enable at boot
   service: name=postgresql enabled=yes state=started
+  become: yes
 
 - name: initialize app databases
   become: yes
   become_user: postgres
-  become_method: su
   postgresql_db: name="{{ item }}" port="{{ db_rails_port }}" encoding="UTF-8" login_user=postgres
   with_items:
     - "{{ db_rails_name }}_dev"
@@ -23,7 +24,6 @@
 - name: initialize db users
   become: yes
   become_user: postgres
-  become_method: su
   postgresql_user:
     name: "{{ db_rails_username }}"
     password: "{{ db_rails_password }}"

@@ -28,4 +28,5 @@
 
 - name: restart nginx
   service: name=nginx state=restarted
+  become: yes
   when: rails_build is defined
