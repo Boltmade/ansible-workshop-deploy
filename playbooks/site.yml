@@ -2,36 +2,8 @@
 - name: apply common configuration to all nodes
   hosts: all
   remote_user: root
-  tasks:
-    - name: update apt-get
-      apt: update_cache=yes cache_valid_time=300
-
-    - name: install required software
-      apt: name={{ item }} state=latest
-      with_items:
-        - curl
-        - git
-        - nodejs
-
-    - name: link nodejs
-      file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
-
-    - name: set up authorized_keys for the root user
-      authorized_key: user=root key="{{ item }}" state=present
-      with_file:
-        - public_keys/id_rsa.pub
-
-    - name: disallow password authentication
-      lineinfile: dest=/etc/ssh/sshd_config
-                  regexp="^PasswordAuthentication"
-                  line="PasswordAuthentication no"
-                  state=present
-
-    - name: restart ssh
-      service: name=ssh state=restarted
-
-    - name: set default PWD
-      lineinfile: dest="/root/.bashrc" line="cd {{ app_path }}"
+  roles:
+    - common
 
 - name: deploy and configure rvm
   hosts: web_servers
@@ -42,57 +14,6 @@
 - name: install and run the rails app
   hosts: web_servers
   remote_user: root
-  tasks:
-    - name: clone or update source
-      git:
-        repo: "{{ git_url }}"
-        version: "{{ git_branch }}"
-        dest: "{{ app_path }}"
-        update: yes
-        accept_hostkey: yes
-        force: yes
-
-    - name: install dependencies
-      bundler: state=present chdir="{{ app_path }}"
-
-    - name: precompile assets
-      shell: "`which bundle` exec rails assets:clean assets:precompile"
-      args:
-        chdir: "{{ app_path }}"
-      environment:
-        RAILS_ENV: "{{ rails_env }}"
-
-    - name: migrate database
-      shell: "`which bundle` exec rails db:migrate"
-      args:
-        chdir: "{{ app_path }}"
-      environment:
-        RAILS_ENV: "{{ rails_env }}"
-
-    - name: create foreman config
-      lineinfile:
-        line: "port: 80"
-        dest: "{{ app_path }}/.foreman"
-        create: yes
-
-    - name: setup rails env
-      lineinfile:
-        line: "{{ item }}"
-        dest: "{{ app_path }}/.env"
-        create: yes
-      with_items:
-        - "RAILS_ENV={{ rails_env }}"
-        - "SECRET_KEY_BASE={{ secret_key_base }}"
-        - "RAILS_SERVE_STATIC_FILES=true"
-
-    - name: create systemd script
-      shell: bundle exec foreman export systemd /etc/systemd/system -a {{ app_name }} -u root
-      args:
-        chdir: "{{ app_path }}"
-        creates: "/etc/systemd/{{ app_name }}.target"
-
-    - name: enable systemd script
-      service: name="{{ app_name }}.target" enabled=yes
-
-    - name: restart server
-      service: name="{{ app_name }}.target" state=restarted
+  roles:
+    - app_setup
+    - app_web_server

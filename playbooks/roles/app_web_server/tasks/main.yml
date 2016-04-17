@@ -1,0 +1,28 @@
+---
+- name: create foreman config
+  lineinfile:
+    line: "port: 80"
+    dest: "{{ app_path }}/.foreman"
+    create: yes
+
+- name: setup rails env
+  lineinfile:
+    line: "{{ item }}"
+    dest: "{{ app_path }}/.env"
+    create: yes
+  with_items:
+    - "RAILS_ENV={{ rails_env }}"
+    - "SECRET_KEY_BASE={{ secret_key_base }}"
+    - "RAILS_SERVE_STATIC_FILES=true"
+
+- name: create systemd script
+  shell: bundle exec foreman export systemd /etc/systemd/system -a {{ app_name }} -u root
+  args:
+    chdir: "{{ app_path }}"
+    creates: "/etc/systemd/{{ app_name }}.target"
+
+- name: enable systemd script
+  service: name="{{ app_name }}.target" enabled=yes
+
+- name: restart server
+  service: name="{{ app_name }}.target" state=restarted

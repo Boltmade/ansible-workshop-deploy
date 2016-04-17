@@ -1,0 +1,38 @@
+---
+- name: install app dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - git
+    - nodejs
+
+- name: link nodejs
+  file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+
+- name: create source directory
+  file: path={{ app_path }} state=directory mode=0755 owner=root group=www-data
+
+- name: clone or update source
+  git:
+    repo: "{{ git_url }}"
+    version: "{{ git_branch }}"
+    dest: "{{ app_path }}"
+    update: yes
+    accept_hostkey: yes
+    force: yes
+
+- name: install dependencies
+  bundler: state=present chdir="{{ app_path }}"
+
+- name: precompile assets
+  shell: "bundle exec rails assets:clean assets:precompile"
+  args:
+    chdir: "{{ app_path }}"
+  environment:
+    RAILS_ENV: "{{ rails_env }}"
+
+- name: migrate database
+  shell: "bundle exec rails db:migrate"
+  args:
+    chdir: "{{ app_path }}"
+  environment:
+    RAILS_ENV: "{{ rails_env }}"
