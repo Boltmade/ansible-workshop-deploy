@@ -1,1 +1,2 @@
 rvm_io.rvm1-ruby
+abtris.nginx-passenger

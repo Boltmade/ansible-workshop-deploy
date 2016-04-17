@@ -1,0 +1,5 @@
+passenger_app_env {{ rails_env }};
+passenger_default_user root;
+passenger_default_group www-data;
+passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+passenger_ruby {{ ruby_path.stdout }};

@@ -1,14 +1,31 @@
 ---
-- name: configure foreman
-  copy: src=foreman.dot dest="{{ app_path }}/.foreman" mode=0644
+- name: disable legacy systemd script
+  service: name="{{ app_name }}.target" enabled=no state=stopped
+  register: command_result
+  failed_when: "command_result | failed and 'could not find' not in command_result.msg"
 
-- name: create systemd script
-  shell: bundle exec foreman export systemd /etc/systemd/system -a {{ app_name }} -u root
-  args:
-    chdir: "{{ app_path }}"
-    creates: "/etc/systemd/{{ app_name }}.target"
-  notify: restart app
+- name: configure nginx passenger
+  template: src=passenger.conf.j2 dest=/etc/nginx/conf.d/passenger.conf mode=0644
+  notify: restart nginx
 
-- name: enable systemd script
-  service: name="{{ app_name }}.target" enabled=yes
-  notify: restart app
+- name: ensure rails env variables are loaded
+  lineinfile: dest=/etc/default/nginx line="source /etc/profile.d/rails_env.sh"
+  notify: restart nginx
+
+- name: install application site
+  template: src=app.conf.j2 dest=/etc/nginx/sites-available/app.conf mode=0644
+  notify: restart nginx
+
+- name: clear default site
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: link application site
+  file: src=/etc/nginx/sites-available/app.conf
+        dest=/etc/nginx/sites-enabled/site.conf
+        state=link
+        force=yes
+  notify: restart nginx
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  when: rails_build is defined

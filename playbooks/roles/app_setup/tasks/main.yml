@@ -23,15 +23,24 @@
 - name: export rails env variables
   template: src=rails_env.sh.j2 dest=/etc/profile.d/rails_env.sh mode=0644
 
+- name: save ruby path for application
+  shell: "`which passenger-config` --ruby-command | grep -e Command | sed -n -e 's/^.*Command: //p'"
+  args:
+    chdir: "{{ app_path }}"
+  register: ruby_path
+
 - name: install dependencies
   bundler: state=present chdir="{{ app_path }}"
+  register: rails_build
 
 - name: precompile assets
   shell: "bundle exec rails assets:clean assets:precompile"
   args:
     chdir: "{{ app_path }}"
+  register: rails_build
 
 - name: migrate database
   shell: ". /etc/profile.d/rails_env.sh && bundle exec rails db:migrate"
   args:
     chdir: "{{ app_path }}"
+  register: rails_build
