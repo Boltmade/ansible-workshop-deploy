@@ -16,6 +16,9 @@
     - name: link nodejs
       file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
 
+    - name: set default PWD
+      lineinfile: dest="/root/.bashrc" line="cd {{ app_path }}"
+
 - name: deploy and configure rvm
   hosts: web_servers
   remote_user: root
