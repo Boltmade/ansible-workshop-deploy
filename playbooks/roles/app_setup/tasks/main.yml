@@ -20,6 +20,9 @@
     accept_hostkey: yes
     force: yes
 
+- name: export rails env variables
+  template: src=rails_env.sh.j2 dest=/etc/profile.d/rails_env.sh mode=0644
+
 - name: install dependencies
   bundler: state=present chdir="{{ app_path }}"
 
@@ -27,12 +30,8 @@
   shell: "bundle exec rails assets:clean assets:precompile"
   args:
     chdir: "{{ app_path }}"
-  environment:
-    RAILS_ENV: "{{ rails_env }}"
 
 - name: migrate database
-  shell: "bundle exec rails db:migrate"
+  shell: ". /etc/profile.d/rails_env.sh && bundle exec rails db:migrate"
   args:
     chdir: "{{ app_path }}"
-  environment:
-    RAILS_ENV: "{{ rails_env }}"

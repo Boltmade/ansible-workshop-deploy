@@ -2,9 +2,6 @@
 - name: configure foreman
   copy: src=foreman.dot dest="{{ app_path }}/.foreman" mode=0644
 
-- name: configure foreman env
-  template: src=foreman_env.j2 dest="{{ app_path }}/.env" mode=0644
-
 - name: create systemd script
   shell: bundle exec foreman export systemd /etc/systemd/system -a {{ app_name }} -u root
   args:
