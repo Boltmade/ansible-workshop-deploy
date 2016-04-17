@@ -16,6 +16,20 @@
     - name: link nodejs
       file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
 
+    - name: set up authorized_keys for the root user
+      authorized_key: user=root key="{{ item }}" state=present
+      with_file:
+        - public_keys/id_rsa.pub
+
+    - name: disallow password authentication
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^PasswordAuthentication"
+                  line="PasswordAuthentication no"
+                  state=present
+
+    - name: restart ssh
+      service: name=ssh state=restarted
+
     - name: set default PWD
       lineinfile: dest="/root/.bashrc" line="cd {{ app_path }}"
 
