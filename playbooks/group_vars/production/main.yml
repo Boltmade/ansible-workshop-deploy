@@ -2,7 +2,10 @@
 rails_env: production
 secret_key_base: "{{ vaulted_secret_key_base }}"
 
-server_name: 159.203.46.230
+main_db_server: 159.203.29.210
+main_web_server: 159.203.46.230
+
+server_name: "{{ main_web_server }}"
 
 db_rails_username: rails
 db_rails_password: "{{ vaulted_db_rails_password }}"

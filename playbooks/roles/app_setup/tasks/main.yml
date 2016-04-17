@@ -5,6 +5,7 @@
   with_items:
     - git
     - nodejs
+    - libpq-dev
 
 - name: link nodejs
   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link

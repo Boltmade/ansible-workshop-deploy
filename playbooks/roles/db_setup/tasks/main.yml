@@ -7,7 +7,21 @@
     - libpq-dev
     - python-psycopg2
 
-- name: Start PostgreSQL and enable at boot
+- name: configure hba file to allow web connection
+  lineinfile:
+    dest: /etc/postgresql/9.4/main/pg_hba.conf
+    line: "host all {{ db_rails_username }} {{ main_web_server }}/32 md5"
+  become: yes
+  notify: restart db
+
+- name: update postgresql config to allow remote connections
+  lineinfile:
+    dest: /etc/postgresql/9.4/main/postgresql.conf
+    line: "listen_addresses = '*'"
+  become: yes
+  notify: restart db
+
+- name: start PostgreSQL and enable at boot
   service: name=postgresql enabled=yes state=started
   become: yes
 

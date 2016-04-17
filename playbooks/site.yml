@@ -13,14 +13,20 @@
     - abtris.nginx-passenger
 
 - name: install the db
-  hosts: web_servers
+  hosts: db_servers
   remote_user: "{{ app_user }}"
   roles:
     - db_setup
 
-- name: install and run the rails app
+- name: install the rails app
   hosts: web_servers
   remote_user: "{{ app_user }}"
   roles:
     - app_setup
+
+- name: run the rails app
+  hosts: web_servers
+  remote_user: "{{ app_user }}"
+  become: yes
+  roles:
     - app_web_server

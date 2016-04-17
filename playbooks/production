@@ -1,5 +1,9 @@
+[db_servers]
+159.203.29.210
+
 [web_servers]
 159.203.46.230
 
 [production:children]
+db_servers
 web_servers
