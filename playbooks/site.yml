@@ -1,5 +1,5 @@
 ---
-- name: basic setup
+- name: apply common configuration to all nodes
   hosts: all
   remote_user: root
   tasks:
@@ -11,6 +11,10 @@
       with_items:
         - curl
         - git
+        - nodejs
+
+    - name: link nodejs
+      file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
 
 - name: deploy and configure rvm
   hosts: web_servers
