@@ -11,15 +11,14 @@
   authorized_key: user=root key="{{ item }}" state=present
   with_file:
     - public_keys/id_rsa.pub
+  notify: restart ssh
 
 - name: disallow password authentication
   lineinfile: dest=/etc/ssh/sshd_config
               regexp="^PasswordAuthentication"
               line="PasswordAuthentication no"
               state=present
-
-- name: restart ssh
-  service: name=ssh state=restarted
+  notify: restart ssh
 
 - name: set default PWD
   lineinfile: dest="/root/.bashrc" line="cd {{ app_path }}"

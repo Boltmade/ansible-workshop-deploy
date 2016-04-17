@@ -10,9 +10,8 @@
   args:
     chdir: "{{ app_path }}"
     creates: "/etc/systemd/{{ app_name }}.target"
+  notify: restart app
 
 - name: enable systemd script
   service: name="{{ app_name }}.target" enabled=yes
-
-- name: restart server
-  service: name="{{ app_name }}.target" state=restarted
+  notify: restart app
