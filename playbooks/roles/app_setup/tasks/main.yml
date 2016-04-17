@@ -23,6 +23,9 @@
 - name: export rails env variables
   template: src=rails_env.sh.j2 dest=/etc/profile.d/rails_env.sh mode=0644
 
+- name: export db settings
+  template: src=database.yml.j2 dest="{{ app_path }}/config/database.yml" mode=0644
+
 - name: save ruby path for application
   shell: "`which passenger-config` --ruby-command | grep -e Command | sed -n -e 's/^.*Command: //p'"
   args:

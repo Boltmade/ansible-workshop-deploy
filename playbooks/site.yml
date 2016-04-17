@@ -12,6 +12,12 @@
     - rvm_io.rvm1-ruby
     - abtris.nginx-passenger
 
+- name: install the db
+  hosts: web_servers
+  remote_user: root
+  roles:
+    - db_setup
+
 - name: install and run the rails app
   hosts: web_servers
   remote_user: root
